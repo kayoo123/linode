@@ -88,7 +88,28 @@ docker run --name guacamole --link guacd:guacd --link guacmysql:mysql -e MYSQL_D
 docker ps
 
 #-- Proxy NGINX
+#cat > $HOME/.config_nginx << "EOF"
+#server {
+# listen 80;
+# server_name flancoco;
+# 
+# location / {
+#  proxy_pass http://localhost:8080/guacamole;
+# }
+#}
+#EOF
+#docker pull nginx
+#docker run --name nginx -d -v $HOME/.config_nginx:/etc/nginx/conf.d/nginx.conf nginx
 
+#-- proxy APACHE
+apt install -y apache2
+a2enmod proxy
+a2enmod proxy_http
+vim /etc/apache2/sites-enabled/000-default.conf
+  ProxyPreserveHost On
+  ProxyPass / http://localhost:8080/ nocanon
+  ProxyPassReverse / http://localhost:8080/ nocanon
+  AllowEncodedSlashes NoDecode
 
 
 #-- Serveur X
