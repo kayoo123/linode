@@ -1,3 +1,4 @@
+#!/bin/bash
 #https://www.linode.com/docs/getting-started/
 #https://www.linode.com/docs/security/securing-your-server/
 #https://www.linode.com/docs/applications/remote-desktop/remote-desktop-using-apache-guacamole-on-docker/
