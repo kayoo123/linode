@@ -5,24 +5,24 @@
 #https://www.dofus.com/fr/forum/1115-bugs/2289966-jouer-linux-debian-9
 
 
-##---- VARS
+##-- VARS
 HOSTNAME="flancoco"
 DOMAIN=""
 USER="jeremi"
-USER_PASS="xxxxxx"
-USER_DB_PASS="${USER_PASS}"
-ROOT_DB_PASS="xxxxxx"
+  USER_PASS="xxxxxx"
+  USER_DB_PASS="${USER_PASS}"
+  ROOT_DB_PASS="xxxxxx"
 
-##---- Set HOSTNAME
+##-- Set HOSTNAME
 echo "${HOSTNAME}" > /etc/hostname
 hostname -F /etc/hostname
-echo -e "$(hostname -I| awk '{print $1}') \t $HOSTNAME" >> /etc/hosts
+echo -e "$(hostname -i) \t $HOSTNAME" >> /etc/hosts
 
-##---- Set TimeZone
+##-- Set TimeZone
 ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
 dpkg-reconfigure -f noninteractive tzdata
 
-##---- Set USER
+##-- Set USER
 #> TODO: nopass sudo
 useradd -m -s /bin/bash ${USER}
 echo -e "${USER_PASS}\n{USER_PASS}" | passwd ${USER}
@@ -31,7 +31,7 @@ adduser ${USER} sudo
 sed -i -e "s/PermitRootLogin yes/PermitRootLogin no/g" /etc/ssh/sshd_config
 service ssh restart
 
-##---- Install PKG
+##-- Install PKG
 #> TODO: add depot contrib nonfree
 apt update && apt upgrade -y
 apt install -y fail2ban net-tools
@@ -112,10 +112,31 @@ vim /etc/apache2/sites-enabled/000-default.conf
   AllowEncodedSlashes NoDecode
 
 
+#-- Alias INIT
+echo "alias start='docker start guacmysql; docker start guacd; docker start guacamole'" >> $HOME/.bash_aliases
+source .bashrc
+
 #-- Serveur X
 apt install xfce4 xfce4-goodies
 apt install tightvncserver
-vncserver
-#> pass + (n)
 echo 'startxfce4 &' | tee -a .vnc/xstartup
-ssh -L 5901:localhost:5901 -N -f -l ${USER} $(hostname -I |awk '{ print $1 }')
+
+su - $USER
+vncpasswd
+vncserver
+#ssh -L 5901:localhost:5901 -N -f -l ${USER} $(hostname -i)
+
+
+#-- Dofus
+add-apt-repository "deb https://dl.winehq.org/wine-builds/debian/ stretch main"
+wget -nc https://dl.winehq.org/wine-builds/winehq.key
+apt-key add winehq.key
+rm -f winehq.key
+dpkg --add-architecture i386
+apt-get update
+apt install -y wine-stable winehq-stable
+su - $USER
+mkdir $HOME/dofus
+wget https://download.dofus.com/full/win/ -O $HOME/dofus/dofus.exe
+echo "alias dofus='wine /home/jeremi/dofus/dofus.exe'" >> $HOME/.bash_aliases
+source .bashrc
