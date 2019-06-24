@@ -113,7 +113,7 @@ vim /etc/apache2/sites-enabled/000-default.conf
 
 
 #-- Alias INIT
-echo "alias start='docker start guacmysql; docker start guacd; docker start guacamole'" >> $HOME/.bash_aliases
+echo "alias start='docker start guacmysql; docker start guacd; docker start guacamole; vncserver -kill :1; sleep 2; vncserver :1 -geometry 1440x900'" >> $HOME/.bash_aliases
 source .bashrc
 
 #-- Serveur X
