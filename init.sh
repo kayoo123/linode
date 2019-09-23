@@ -16,7 +16,7 @@ USER="jeremi"
 ##-- Set HOSTNAME
 echo "${HOSTNAME}" > /etc/hostname
 hostname -F /etc/hostname
-echo -e "$(hostname -i) \t $HOSTNAME" >> /etc/hosts
+echo -e "$(hostname -I |awk '{ print $1 }') \t $HOSTNAME" >> /etc/hosts
 
 ##-- Set TimeZone
 ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
