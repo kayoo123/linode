@@ -6,21 +6,25 @@
 
 
 ##-- VARS
-HOSTNAME="flancoco"
-DOMAIN=""
-USER="jeremi"
-echo "Veuillez tapper le pass du compte $USER"
-read -s USER_PASS
+read -p "> Hostname: " HOSTNAME
+read -p "> USER:     " USER
+read -p "> PASS:     " -s USER_PASS
 
 
 ##-- Set HOSTNAME
 echo "${HOSTNAME}" > /etc/hostname
 hostname -F /etc/hostname
+hostnamectl set-hostname "${HOSTNAME}"
 echo -e "$(hostname -I |awk '{ print $1 }') \t $HOSTNAME" >> /etc/hosts
 
 ##-- Set TimeZone
 ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
 dpkg-reconfigure -f noninteractive tzdata
+
+##-- Install PKG
+#> TODO: add depot contrib nonfree
+apt update && apt upgrade -y
+apt install -y fail2ban net-tools sudo git vim 
 
 ##-- Set USER
 #> TODO: nopass sudo
@@ -30,11 +34,6 @@ unset USER_PASS
 adduser ${USER} sudo
 sed -i -e "s/PermitRootLogin yes/PermitRootLogin no/g" /etc/ssh/sshd_config
 service ssh restart
-
-##-- Install PKG
-#> TODO: add depot contrib nonfree
-apt update && apt upgrade -y
-apt install -y fail2ban net-tools
 
 #-- Install Docker
 apt remove -y docker docker-engine docker.io
