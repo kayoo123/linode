@@ -24,7 +24,7 @@ dpkg-reconfigure -f noninteractive tzdata
 ##-- Install PKG
 #> TODO: add depot contrib nonfree
 apt update && apt upgrade -y
-apt install -y fail2ban net-tools sudo git vim 
+apt install -y fail2ban net-tools sudo cron git vim
 
 ##-- Set USER
 #> TODO: nopass sudo
