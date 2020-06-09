@@ -23,7 +23,8 @@ dpkg-reconfigure -f noninteractive tzdata
 
 ##-- Install PKG
 #> TODO: add depot contrib nonfree
-apt update && apt upgrade -y
+sed -i 's/buster main/buster main contrib non-free/g' /etc/apt/sources.list
+apt update && apt dist-upgrade -y
 apt install -y fail2ban net-tools sudo cron git vim
 
 ##-- Set USER
