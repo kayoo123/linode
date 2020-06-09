@@ -49,20 +49,6 @@ usermod -aG docker $USER
 docker pull guacamole/guacamole
 docker pull guacamole/guacd
 docker pull mysql/mysql-server
- 
-#-- Install Docker
-apt remove docker docker-engine docker.io
-apt install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-apt-key fingerprint 0EBFCD88
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-apt update && apt install -y docker-ce
-usermod -aG docker $USER
-
-#-- Config Guacamole
-docker pull guacamole/guacamole
-docker pull guacamole/guacd
-docker pull mysql/mysql-server
 
 #-- init DB
 docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > initdb.sql
