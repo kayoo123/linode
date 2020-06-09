@@ -9,9 +9,9 @@
 HOSTNAME="flancoco"
 DOMAIN=""
 USER="jeremi"
-  USER_PASS="xxxxxx"
-  USER_DB_PASS="${USER_PASS}"
-  ROOT_DB_PASS="xxxxxx"
+echo "Veuillez tapper le pass du compte $USER"
+read -s USER_PASS
+
 
 ##-- Set HOSTNAME
 echo "${HOSTNAME}" > /etc/hostname
@@ -25,7 +25,7 @@ dpkg-reconfigure -f noninteractive tzdata
 ##-- Set USER
 #> TODO: nopass sudo
 useradd -m -s /bin/bash ${USER}
-echo -e "${USER_PASS}\n{USER_PASS}" | passwd ${USER}
+echo -e "${USER_PASS}\n${USER_PASS}" | passwd ${USER}
 unset USER_PASS
 adduser ${USER} sudo
 sed -i -e "s/PermitRootLogin yes/PermitRootLogin no/g" /etc/ssh/sshd_config
