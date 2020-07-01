@@ -7,7 +7,7 @@
 
 ##-- VARS
 read -p "> Hostname: " HOSTNAME
-read -p "> USER:     " USER
+read -p "> USER:     " USERNAME
 read -p "> PASS:     " -s USER_PASS
 
 
@@ -29,12 +29,14 @@ apt install -y fail2ban net-tools sudo cron git vim
 
 ##-- Set USER
 #> TODO: nopass sudo
-useradd -m -s /bin/bash ${USER}
-echo -e "${USER_PASS}\n${USER_PASS}" | passwd ${USER}
+useradd -m -s /bin/bash ${USERNAME}
+echo -e "${USER_PASS}\n${USER_PASS}" | passwd ${USERNAME}
 unset USER_PASS
-adduser ${USER} sudo
+adduser ${USERNAME} sudo
 sed -i -e "s/PermitRootLogin yes/PermitRootLogin no/g" /etc/ssh/sshd_config
 service ssh restart
+echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${USERNAME}
+service sudo reload
 
 #-- Install Docker
 apt remove -y docker docker-engine docker.io
@@ -43,7 +45,7 @@ curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
 apt-key fingerprint 0EBFCD88
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 apt update && apt install -y docker-ce
-usermod -aG docker $USER
+usermod -aG docker $USERNAME
 
 #-- Config Guacamole
 docker pull guacamole/guacamole
@@ -57,9 +59,9 @@ docker cp initdb.sql guacmysql:/guac_db.sql
 docker exec -it guacmysql bash
 > mysql -u root -p
 >> ALTER USER 'root'@'localhost' IDENTIFIED BY '${ROOT_DB_PASS}';
->> CREATE USER '${USER}'@'%' IDENTIFIED BY '${USER_DB_PASS}';
+>> CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${USER_DB_PASS}';
 >> CREATE DATABASE guacamole_db;
->> GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole_db.* TO '${USER}'@'%';
+>> GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole_db.* TO '${USERNAME}'@'%';
 >> FLUSH PRIVILEGES;
 >> quit
 
@@ -70,7 +72,7 @@ unset USER_DB_PASS ROOT_DB_PASS
 
 #-- App guacamole
 docker run --name guacd -d guacamole/guacd
-docker run --name guacamole --link guacd:guacd --link guacmysql:mysql -e MYSQL_DATABASE='guacamole_db' -e MYSQL_USER='${USER}' -e MYSQL_PASSWORD='${USER_DB_PASS}' -d -p 127.0.0.1:8080:8080 guacamole/guacamole
+docker run --name guacamole --link guacd:guacd --link guacmysql:mysql -e MYSQL_DATABASE='guacamole_db' -e MYSQL_USER='${USERNAME}' -e MYSQL_PASSWORD='${USER_DB_PASS}' -d -p 127.0.0.1:8080:8080 guacamole/guacamole
 docker ps
 
 #-- Proxy NGINX
@@ -121,7 +123,7 @@ rm -f winehq.key
 dpkg --add-architecture i386
 apt-get update
 apt install -y wine-stable winehq-stable
-su - $USER
+su - $USERNAME
 mkdir $HOME/dofus
 wget https://download.dofus.com/full/win/ -O $HOME/dofus/dofus.exe
 echo "alias dofus='wine /home/jeremi/dofus/dofus.exe'" >> $HOME/.bash_aliases
